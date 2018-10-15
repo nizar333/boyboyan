@@ -7,7 +7,12 @@ using System.Linq;
 
 public class  pengaturanMultiplayer  :   Photon.MonoBehaviour {
 
+	GameObject[] a, b, c, d, e;
+	public TextMesh CubeCount;
+	public GameObject[] aaa;
+	public GameObject[] bbb;
 	public GameObject panelMenang;
+	public GameObject panelKalah;
 	public Text namaPlayer;
 	public Text jenisPlayer;
 	public Text statusAktifitas;
@@ -32,8 +37,8 @@ public class  pengaturanMultiplayer  :   Photon.MonoBehaviour {
 
 	void Start () {
 		pv = this.GetComponent<PhotonView>();
-
 		panelMenang.SetActive (false);
+		panelKalah.SetActive (false);
 		indeks = PlayerPrefs.GetInt ("indexPemain");
 
 		if (PhotonNetwork.connected) {
@@ -57,6 +62,33 @@ public class  pengaturanMultiplayer  :   Photon.MonoBehaviour {
 			PhotonNetwork.offlineMode = true;
 		}
 		jumlahPlayer.text = PhotonNetwork.room.PlayerCount.ToString() + " Player";
+
+		a = GameObject.FindGameObjectsWithTag ("attacker");
+		b = GameObject.FindGameObjectsWithTag ("attacker1");
+		c = GameObject.FindGameObjectsWithTag ("attacker2");
+		d = GameObject.FindGameObjectsWithTag ("attacker3");
+		e = GameObject.FindGameObjectsWithTag ("attacker4");
+		aaa = a.Concat (b).Concat (c).Concat (d).Concat (e).ToArray();
+
+		int coutinho = int.Parse (CubeCount.text);
+
+		//jika pemain defender menang
+		if (Pemain == players [0] && aaa.Length == 0){
+			panelMenang.SetActive (true);
+		}
+		//jika pemain attacker kalah
+		if ((Pemain == players [1] || Pemain == players [2] || Pemain == players [3] || Pemain == players [4] || Pemain == players [5]) && aaa.Length == 0){
+			panelKalah.SetActive (true);
+		}
+		//jika pemain attacker menang
+		if ((Pemain == players [1] || Pemain == players [2] || Pemain == players [3] || Pemain == players [4] || Pemain == players [5]) && coutinho == aaa.Length){
+			panelMenang.SetActive (true);
+		}
+		//jika pemain defender kalah
+		if (Pemain == players [0] && coutinho == aaa.Length){
+			panelKalah.SetActive (true);
+		}
+
 
 	}
 		
@@ -116,10 +148,12 @@ public class  pengaturanMultiplayer  :   Photon.MonoBehaviour {
 		if (stream.isWriting) 
 		{ 
 			stream.SendNext(statusAktifitas.text);
+
 		} 
 		else
 		{ 
 			statusAktifitas.text = (string)stream.ReceiveNext(); 
+	
 		} 
 	}
 

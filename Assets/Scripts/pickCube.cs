@@ -65,6 +65,7 @@ public class pickCube : Photon.PunBehaviour
 			beku ();
 			balok.SetActive (false);
 			PanelFreeze.SetActive (true);
+			gameObject.tag = "merahBeku";
 		}
 	}
 
@@ -172,10 +173,16 @@ public class pickCube : Photon.PunBehaviour
 		if (stream.isWriting) 
 		{ 
 			stream.SendNext (balok.activeInHierarchy);
+			stream.SendNext (GetComponent<PlayerController> ().enabled);
+			stream.SendNext (GetComponent<Animator> ().enabled);
+			stream.SendNext (gameObject.tag);
 		} 
 		else
 		{ 
 			balok.SetActive ((bool)stream.ReceiveNext ());
+			GetComponent<PlayerController> ().enabled = (bool)stream.ReceiveNext ();
+			GetComponent<Animator> ().enabled = (bool)stream.ReceiveNext ();
+			gameObject.tag = (string)stream.ReceiveNext ();
 		} 
 	}
 
