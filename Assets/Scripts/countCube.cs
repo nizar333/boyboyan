@@ -14,7 +14,7 @@ public class countCube : MonoBehaviour {
 
 	void OnTriggerEnter (Collider other)
 	{
-		if (other.tag == "cube") 
+		if (other.tag == "cube" || other.tag == "cube1" || other.tag == "cube2" || other.tag == "cube3" || other.tag == "cube4") 
 		{
 		  count++;
 		}
@@ -22,7 +22,7 @@ public class countCube : MonoBehaviour {
 	}
 
 	void OnTriggerExit (Collider other) {
-		if (other.tag == "cube") 
+		if (other.tag == "cube" || other.tag == "cube1" || other.tag == "cube2" || other.tag == "cube3" || other.tag == "cube4") 
 		{
 			count--;
 		}

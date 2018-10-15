@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using System.Linq;
 
 [RequireComponent( typeof( PhotonView ) )]
-public class pickCube : Photon.PunBehaviour
+public class pickCube2 : Photon.PunBehaviour
 {
 	GameObject PanelFreeze;
 	Transform hands;
@@ -22,9 +22,9 @@ public class pickCube : Photon.PunBehaviour
 
 	bool freeze = false;
 
-
 	void Start()
 	{
+
 		pv = this.GetComponent<PhotonView>();
 		player = gameObject;
 		hands = player.transform.Find ("Hands1");
@@ -33,17 +33,17 @@ public class pickCube : Photon.PunBehaviour
 			PanelFreeze = GameObject.FindWithTag ("freeze");
 			PanelFreeze.SetActive (false);
 		}
-
 	}
-		
+
 	[PunRPC]
 	void BALOK(){
-		balok = GameObject.FindWithTag ("cube");
+		balok = GameObject.FindWithTag ("cube2");
 		tanda = balok.transform.Find ("Pointer").gameObject;
 	}
 
 	void Update()
 	{
+
 		if (pv.isMine) {
 			TextMesh namaPlayers = namaPemain.GetComponent<TextMesh> ();
 			namaPlayers.text = PhotonNetwork.player.NickName;
@@ -108,7 +108,7 @@ public class pickCube : Photon.PunBehaviour
 	void DIST(Vector3 posisi_balok, Vector3 posisi_player){
 		dist = Vector3.Distance (posisi_balok, posisi_player);
 	}
-		
+
 
 	void balokDipegang()
 	{
@@ -133,7 +133,7 @@ public class pickCube : Photon.PunBehaviour
 	void disparenting(){
 		balok.transform.parent = null;
 		beingCarried = false;
-		balok.tag = "cube";
+		balok.tag = "cube2";
 	}
 
 	void lepasBalok()
@@ -148,7 +148,6 @@ public class pickCube : Photon.PunBehaviour
 		GetComponent<PlayerController> ().enabled = false;
 		GetComponent<Animator> ().enabled = false;
 	}
-		
 
 	void OnTriggerEnter(Collider other)
 	{
@@ -164,7 +163,7 @@ public class pickCube : Photon.PunBehaviour
 			freeze = true;
 		}
 	}
-		
+
 
 	void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) 
 	{ 

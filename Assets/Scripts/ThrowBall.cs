@@ -7,45 +7,30 @@ using System.Linq;
 [RequireComponent( typeof( PhotonView ) )]
 public class ThrowBall : Photon.PunBehaviour
 {
-	//private Vector3 syncPosShot = Vector3.zero;
-	//GameObject player;
-	//Transform bola;
-	//GameObject ball;
-	public Transform hands;
-	//public Transform hand2;
+	GameObject PanelFreeze;
+	Transform hands;
 	bool hasPlayer = false;
 	bool beingCarried = false;
-	bool udahRequestOwnership = true;
-	bool udahTransferOwnership = true;
 	private Slider powerBar;
 	private float powerBarTreshold = 20f;
 	private float powerBarValue = 0f;
 	GameObject barPower;
 	GameObject targetTembak;
-	//public GameObject pemain;
 	public TextMesh namaPemain;
-	//private float thePower; //current power
-
-	public bool increasing = false;
-
-	//public float barSpeed = 25; //how fast bar will fill in.
-	//public AudioClip[] soundToPlay;
-	//private AudioSource audio;
-	//public int dmg;
+	bool increasing = false;
 	private bool touched = false;
 	private bool shot = false;
 	PhotonView pv;
 	GameObject bola; 
-	GameObject pemain;
+	GameObject player;
+	int ownerBola;
+	int playerID;
+	float dist;
 
 	void Start()
 	{
+		
 		pv = this.GetComponent<PhotonView>();
-		//player = GameObject.FindWithTag ("Player");
-		//bola = GameObject.FindWithTag ("bola").transform;
-		//ball = GameObject.FindWithTag ("bola");
-		//hands = GameObject.FindWithTag ("hands").transform;
-		pemain = GameObject.FindWithTag ("Player");
 		powerBar = GameObject.Find ("Power Bar").GetComponent<Slider> ();
 		powerBar.minValue = 0f;
 		powerBar.maxValue = 400f;
@@ -54,7 +39,16 @@ public class ThrowBall : Photon.PunBehaviour
 		barPower.SetActive (false);
 		targetTembak = GameObject.Find ("target_tembak");
 		targetTembak.SetActive (false);
-		//audio = GetComponent<AudioSource>();
+		pv.RPC ("BOLA", PhotonTargets.All);
+		player = GameObject.FindWithTag("Player");
+		hands = player.transform.Find ("hands");
+		if (pv.isMine) {
+			PanelFreeze = GameObject.FindWithTag ("freeze");
+			PanelFreeze.SetActive (false);
+		}
+	}
+	[PunRPC]
+	void BOLA(){
 		bola = GameObject.FindWithTag ("bola");
 	}
 
@@ -68,49 +62,63 @@ public class ThrowBall : Photon.PunBehaviour
 			TextMesh namaPlayers = namaPemain.GetComponent<TextMesh> ();
 			namaPlayers.text = pv.owner.NickName;
 		}
-			
-		tangkap ();
-		if (beingCarried && udahRequestOwnership) {
 
-				bola.GetComponent<PhotonView> ().RequestOwnership ();
-
-				if (bola.GetComponent<PhotonView> ().ownerId == PhotonNetwork.player.ID) {
-					udahRequestOwnership = false;
-				} 
-			} 
-			
-			if (udahRequestOwnership == false && beingCarried == false && udahTransferOwnership) {
-				bola.GetComponent<PhotonView> ().TransferOwnership (0);
-				udahTransferOwnership = false;
-			}
-		if (beingCarried) {
-			bolaDipegang ();
-			lemparBola ();
+		if (!pv.isMine && PhotonNetwork.connected == true) {
+			return;
 		}
 
+		tangkap ();	
+		if (beingCarried) {
+			if (ownerBola == PhotonNetwork.player.ID) {
+				pv.RPC ("parenting", PhotonTargets.All);
+			} else {
+				bola.GetComponent<PhotonView> ().TransferOwnership (PhotonNetwork.player.ID);
+				pv.RPC ("parenting", PhotonTargets.All);
+			}
+		}
+			
+		bolaDipegang ();
+		lemparBola ();
 	}
+		
+
+	[PunRPC]
+	void parenting(){
+		ownerBola = bola.GetComponent<PhotonView> ().ownerId;
+		playerID = (ownerBola * 1000) + 1;
+		Debug.Log (playerID);
+		player = PhotonView.Find (playerID).gameObject;
+		hands = player.transform.Find ("hands");
+		bola.GetComponent<Rigidbody> ().isKinematic = true;
+		bola.transform.parent = hands;
+		bola.transform.position = hands.transform.position;
+		bola.transform.position += Vector3.up;
+		bola.transform.position += Vector3.forward;
+
+	}
+		
 
 	//tangkap bola
 	void tangkap()
 	{
-		float dist = Vector3.Distance (bola.transform.position, pemain.transform.position);
+		pv.RPC("DIST",PhotonTargets.All, bola.transform.position, player.transform.position);
 		if (dist <= 2f) {
 			hasPlayer = true;
 		} else {
 			hasPlayer = false;
 		}
 		if (hasPlayer) {
-			//ball.GetComponent<>().
-			bola.GetComponent<Rigidbody> ().isKinematic = true;
-			dist = 1.3f;
-			bola.transform.parent = hands;
-			bola.transform.position += (Vector3.up) * 2;
+			bola.transform.position += (Vector3.up);
 			beingCarried = true;
-			udahRequestOwnership = true;
-			udahTransferOwnership = true;
 		}
-
 	}
+
+	[PunRPC]
+	void DIST(Vector3 posisi_bola, Vector3 posisi_player){
+		dist = Vector3.Distance (posisi_bola, posisi_player);
+	}
+
+
 
 	void bolaDipegang()
 	{
@@ -129,19 +137,23 @@ public class ThrowBall : Photon.PunBehaviour
 		}
 	}
 
+	[PunRPC]
+	void disparenting(){
+		bola.transform.parent = null;
+		beingCarried = false;
+	}
+		
 	void lemparBola()
 	{
 		if (Input.GetMouseButton (0) && beingCarried) {   
 			barPower.SetActive (true);
 			increasing = true;
 			shot = false;
-			//RandomAudio();
 		} else if (Input.GetMouseButtonUp (0)) {
 			barPower.SetActive (false);
 			targetTembak.SetActive (false);
 			bola.GetComponent<Rigidbody> ().isKinematic = false;
-			bola.transform.parent = null;
-			beingCarried = false;
+			pv.RPC ("disparenting", PhotonTargets.All);
 			bola.GetComponent<Rigidbody> ().AddForce (hands.forward * powerBarValue);
 			increasing = false;
 			GetComponent<PlayerController> ().enabled = true;
@@ -155,8 +167,7 @@ public class ThrowBall : Photon.PunBehaviour
 			barPower.SetActive (false);
 			targetTembak.SetActive (false);
 			bola.GetComponent<Rigidbody> ().isKinematic = false;
-			bola.transform.parent = null;
-			beingCarried = false;
+			pv.RPC ("disparenting", PhotonTargets.All);
 			bola.GetComponent<Rigidbody> ().AddForce (hands.forward * powerBarValue);
 			increasing = false;
 			GetComponent<PlayerController> ().enabled = true;
@@ -169,26 +180,29 @@ public class ThrowBall : Photon.PunBehaviour
 		} else { //else set thepower back to 0.
 			powerBarValue = 0;
 		}
-
 		if (shot) {
 			hands.transform.eulerAngles = new Vector3 (10, hands.eulerAngles.y, hands.eulerAngles.z);
 		} else {
 			hands.transform.eulerAngles = new Vector3 (-20, hands.eulerAngles.y, hands.eulerAngles.z);
 		}	
-	}		
-
-	private void OnTriggerEnter()
-	{
-
-		if (beingCarried) {
-			touched = true;
-		} 
+			
 
 	}
+		
+		
+
+		private void OnTriggerEnter()
+	{
+		if (beingCarried) {
+			touched = true;
+			}
+	}
+
 		
 
 	void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) 
 	{ 
+		
 		if (stream.isWriting) 
 		{ 
 			stream.SendNext(transform.position);
@@ -197,29 +211,9 @@ public class ThrowBall : Photon.PunBehaviour
 		else
 		{ 
 			transform.position = (Vector3)stream.ReceiveNext(); 
-			transform.rotation = (Quaternion)stream.ReceiveNext ();
+			transform.rotation = (Quaternion)stream.ReceiveNext(); 
+
 		} 
 	}
-
-	/*
-	[PunRPC]
-	public void ColorRpc( Vector3 col )
-	{
-		Color color = new Color( col.x, col.y, col.z );
-		ball.GetComponent<Renderer>().material.color = color;
-	}
-	*/
-
-/*
-	void RandomAudio()
-	{
-		if (audio.isPlaying){
-			return;
-		}
-		audio.clip = soundToPlay[Random.Range(0, soundToPlay.Length)];
-		audio.Play();
-
-	}
-  */
 
 }

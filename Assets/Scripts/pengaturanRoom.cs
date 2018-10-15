@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class pengaturanRoom : MonoBehaviour
 {
-
 	public Button tombolGabung;
 	public Dropdown dropdownRoom;
 	public Text statusKoneksi;
@@ -44,12 +43,6 @@ public class pengaturanRoom : MonoBehaviour
 		Debug.Log("Mulai Validasi");
 		statusKoneksi.text = "Mulai Validasi";
 		PhotonNetwork.automaticallySyncScene = true;
-	}
-
-	// Update is called once per frame
-	void Update()
-	{
-
 	}
 
 	public void GabungSeleksiRoom()
