@@ -39,8 +39,9 @@ public class ThrowBall : Photon.PunBehaviour
 		barPower.SetActive (false);
 		targetTembak = GameObject.Find ("target_tembak");
 		targetTembak.SetActive (false);
+		GetComponent<Raycast> ().enabled = false;
 		pv.RPC ("BOLA", PhotonTargets.All);
-		player = GameObject.FindWithTag("Player");
+		player = gameObject;
 		hands = player.transform.Find ("hands");
 		if (pv.isMine) {
 			PanelFreeze = GameObject.FindWithTag ("freeze");
@@ -181,7 +182,7 @@ public class ThrowBall : Photon.PunBehaviour
 			powerBarValue = 0;
 		}
 		if (shot) {
-			hands.transform.eulerAngles = new Vector3 (10, hands.eulerAngles.y, hands.eulerAngles.z);
+			hands.transform.eulerAngles = new Vector3 (15, hands.eulerAngles.y, hands.eulerAngles.z);
 		} else {
 			hands.transform.eulerAngles = new Vector3 (-20, hands.eulerAngles.y, hands.eulerAngles.z);
 		}	

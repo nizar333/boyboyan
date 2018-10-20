@@ -200,6 +200,7 @@
      <Compile Include="Assets\Scripts\arahTembak.cs" />
      <Compile Include="Assets\Scripts\atribut_bertahan.cs" />
      <Compile Include="Assets\Scripts\aturanMain.cs" />
+     <Compile Include="Assets\Scripts\backsound.cs" />
      <Compile Include="Assets\Scripts\cannonManager.cs" />
      <Compile Include="Assets\Scripts\countCube.cs" />
      <Compile Include="Assets\Scripts\gameObjectHelper.cs" />

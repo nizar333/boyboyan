@@ -12,6 +12,7 @@ public class pickCube3 : Photon.PunBehaviour
 	bool hasPlayer = false;
 	bool beingCarried = false;
 	public TextMesh namaPemain;
+	GameObject namea;
 	private bool touched = false;
 	PhotonView pv;
 	GameObject balok, tanda;
@@ -19,19 +20,22 @@ public class pickCube3 : Photon.PunBehaviour
 	int ownerBalok;
 	int playerID;
 	float dist;
-
+	float time = 0.0f;
+	float lamaPanelBeku;
 	bool freeze = false;
 
 	void Start()
 	{
 
 		pv = this.GetComponent<PhotonView>();
-		player = gameObject;
-		hands = player.transform.Find ("Hands1");
 		pv.RPC ("BALOK", PhotonTargets.All);
 		if (pv.isMine) {
+			player = gameObject;
+			hands = player.transform.Find ("Hands1");
 			PanelFreeze = GameObject.FindWithTag ("freeze");
 			PanelFreeze.SetActive (false);
+			lamaPanelBeku = 7f;
+			namea = player.transform.Find ("nama_player1").gameObject;
 		}
 	}
 
@@ -62,9 +66,15 @@ public class pickCube3 : Photon.PunBehaviour
 		lepasBalok ();
 
 		if (freeze) {
+			time += Time.deltaTime;
 			beku ();
-			balok.SetActive (false);
 			PanelFreeze.SetActive (true);
+			if (time >= lamaPanelBeku) {
+				PanelFreeze.SetActive (false);
+				namea.SetActive(false);
+			}
+			balok.SetActive (false);
+			gameObject.tag = "merahBeku";
 		}
 	}
 
@@ -172,10 +182,16 @@ public class pickCube3 : Photon.PunBehaviour
 		if (stream.isWriting) 
 		{ 
 			stream.SendNext (balok.activeInHierarchy);
+			stream.SendNext (GetComponent<PlayerController> ().enabled);
+			stream.SendNext (GetComponent<Animator> ().enabled);
+			stream.SendNext (gameObject.tag);
 		} 
 		else
 		{ 
 			balok.SetActive ((bool)stream.ReceiveNext ());
+			GetComponent<PlayerController> ().enabled = (bool)stream.ReceiveNext ();
+			GetComponent<Animator> ().enabled = (bool)stream.ReceiveNext ();
+			gameObject.tag = (string)stream.ReceiveNext ();
 		} 
 	}
 

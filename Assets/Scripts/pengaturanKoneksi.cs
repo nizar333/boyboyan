@@ -6,7 +6,7 @@ using System.Linq;
 
 public class pengaturanKoneksi : Photon.MonoBehaviour {
 
-	public int maksimumPlayerPerRoom = 20;
+	public int maksimumPlayerPerRoom = 10;
 	//public int maksimumRoom = 2;
 	public string namaRoom = "Padang Rumput";
 	public string namaRoom1 = "Padang Pasir";

@@ -12,10 +12,12 @@ public class throwBalok : MonoBehaviour
 	public Transform hands, hands1, hands2, hands3, hands4;
 	GameObject balok, balok1, balok2, balok3, balok4;
 	float time = 0.0f;
+	float countdownt = 3f;
 	float interpolationPeriod;
 	float inactivePeriod;
 	public int a = 0;
-
+	public GameObject countdown;
+	TextMesh hitungMundur;
 
 	void OnTriggerEnter (Collider other)
 	{
@@ -28,8 +30,10 @@ public class throwBalok : MonoBehaviour
 
 	void Start()
 	{
-		interpolationPeriod = 5f;
-		inactivePeriod = interpolationPeriod + 4f;
+		hitungMundur = countdown.GetComponent<TextMesh> ();
+		countdown.SetActive (false);
+		interpolationPeriod = 3f;
+		inactivePeriod = interpolationPeriod + 5f;
 		
 		pemutarMeriam = gameObject.transform.Find("pemutar");
 		balok = GameObject.FindGameObjectWithTag ("cube");
@@ -61,11 +65,15 @@ public class throwBalok : MonoBehaviour
 		pemutarMeriam.Rotate (Vector3.up, speed*Time.deltaTime);
 
 		if (a == 1) {
+			countdown.SetActive (true);
 			time += Time.deltaTime;
+			countdownt -= Time.deltaTime;
+			hitungMundur.text = Mathf.RoundToInt(countdownt).ToString();
 		}
 			
 
 		if (time >= interpolationPeriod) {
+			countdown.SetActive (false);
 			balok.transform.parent = null;
 			balok.GetComponent<Rigidbody> ().isKinematic = false;
 			balok.GetComponent<Rigidbody> ().useGravity = true;

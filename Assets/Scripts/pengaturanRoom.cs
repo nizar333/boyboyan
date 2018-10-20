@@ -36,6 +36,7 @@ public class pengaturanRoom : MonoBehaviour
 		Debug.Log("Mulai Fungsi Awake");
 		statusKoneksi.text = "Mulai Fungsi Awake";
 		inputNamaPlayer.interactable = false;
+
 	}
 	void Start()
 	{
@@ -47,10 +48,10 @@ public class pengaturanRoom : MonoBehaviour
 
 	public void GabungSeleksiRoom()
 	{
-		
 		AmbilRoom.Room roomDiseleksi = obyekRoom[DropdownRoom.value];
 		pengaturanKoneksi.GabungRoom(roomDiseleksi.namaRoom, inputNamaPlayer.text);
 		statusKoneksi.text = "Gabung dengan Room yang diseleksi";
+
 	}
 	void OnJoinedRoom()
 	{
@@ -95,7 +96,7 @@ public class pengaturanRoom : MonoBehaviour
 			});
 	}
 
-  
+
 
 	void BelumBisaGabung()
 	{
@@ -116,9 +117,9 @@ public class pengaturanRoom : MonoBehaviour
 	}
 
 	public bool validasiRoom()
-	{
+	{  
 		if (inputNamaPlayer.text.Length < minPanjangNamaPlayer || inputNamaPlayer.text.Length > maksPanjangNamaPlayer
-			|| ApakahRoomPenuh())
+			|| ApakahRoomPenuh()) 
 		{
 			BelumBisaGabung();
 			return false;
